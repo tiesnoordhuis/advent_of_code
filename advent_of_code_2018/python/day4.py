@@ -43,6 +43,7 @@ for parsed_event in parsed_events:
     if parsed_event["event_data"][0] == "w":
         grouped_event["awake"].append(parsed_event["date"])
     prev_event = parsed_event
+    print(grouped_event)
     first = False
 
 parsed_grouped_event = {}
@@ -54,8 +55,16 @@ for grouped_event in grouped_events:
         parsed_grouped_event["day"] = np.datetime64(grouped_event["start"], "D")
     else:
         parsed_grouped_event["day"] = np.datetime64(grouped_event["start"] + np.timedelta64(1, "h"), "D")
-    parsed_grouped_event["schedule"] = []
-    for minute in range(60):
-        parsed_grouped_event["schedule"].append((minute, guard_awake))
+
+    parsed_grouped_event["delta_awake"] = [0]
+    for wake_date in grouped_event["awake"]:
+        delta = parsed_grouped_event["day"] - wake_date
+        parsed_grouped_event["delta_awake"].append(delta)
+
+    parsed_grouped_event["delta_asleep"] = []
+    for wake_date in grouped_event["asleep"]:
+        delta = parsed_grouped_event["day"] - wake_date
+        parsed_grouped_event["delta_asleep"].append(delta)
+
     print(parsed_grouped_event)
     parsed_grouped_events.append(parsed_grouped_event)
