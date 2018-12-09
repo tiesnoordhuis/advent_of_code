@@ -1,5 +1,7 @@
 import numpy as np
 
+
+
 with open('../input4.txt', 'r') as f:
     events = [event for event in f.read().splitlines()]
 
@@ -89,7 +91,6 @@ for parsed_grouped_event in parsed_grouped_events:
             complete_event["awake_time"] += 1
     complete_event["sleep_time"] = 60 - complete_event["awake_time"]
     complete_events.append(complete_event.copy())
-    print(complete_event)
 
 list_IDs = []
 sleep_times = {}
@@ -100,8 +101,6 @@ for event in complete_events:
     else:
         sleep_times[event["ID"]] = event["sleep_time"]
         list_IDs.append(event["ID"])
-
-print(sleep_times)
 
 longest_sleep_time = 0
 longest_sleep_ID = ""
@@ -117,5 +116,21 @@ longest_sleeper = []
 
 for event in complete_events:
     if longest_sleep_ID == event["ID"]:
-        longest_sleeper.append(event)
-        print(event)
+        longest_sleeper.append(event.copy())
+
+minutes_sleeping = [0] * 60
+highest_min = 0
+
+for event in longest_sleeper:
+    for event_minute in event["schedule"]:
+        if not event_minute[1]:
+            minutes_sleeping[event_minute[0]] += 1
+
+index_highest = 0
+
+for index, min_asleep in enumerate(minutes_sleeping):
+    if min_asleep > highest_min:
+        highest_min = min_asleep
+        index_highest = index
+
+print(index_highest * int(longest_sleep_ID))
