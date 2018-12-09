@@ -92,31 +92,33 @@ for parsed_grouped_event in parsed_grouped_events:
     complete_event["sleep_time"] = 60 - complete_event["awake_time"]
     complete_events.append(complete_event.copy())
 
-list_IDs = []
-sleep_times = {}
+sleep_times_with_ID_doubles = [event["ID"] for event in complete_events]
+sleep_times_with_ID = set(sleep_times_with_ID_doubles)
 
-for event in complete_events:
-    if event["ID"] in list_IDs:
-        sleep_times[event["ID"]] += event["sleep_time"]
-    else:
-        sleep_times[event["ID"]] = event["sleep_time"]
-        list_IDs.append(event["ID"])
+guard_times = []
 
-longest_sleep_time = 0
-longest_sleep_ID = ""
+for ID in sleep_times_with_ID:
+    guard_events = {"ID": ID, "schedules": [], "highest_score": 0, "most_sleep_min": 0}
+    for index, event in enumerate(complete_events):
+        if event["ID"] == ID:
+            if len(guard_events["schedules"]) < 1:
+                guard_events["schedules"] = [0] * 60
+                for minute, sleep_time in enumerate(event["schedule"]):
+                    if not event["schedule"][minute][1]:
+                        guard_events["schedules"][minute] = 1
+            else:
+                for minute, sleep_time in enumerate(event["schedule"]):
+                    if not event["schedule"][minute][1]:
+                        guard_events["schedules"][minute] += 1
+    guard_times.append(guard_events.copy())
 
-for item_key in sleep_times:
-    if sleep_times[item_key] > longest_sleep_time:
-        longest_sleep_time = sleep_times[item_key]
-        longest_sleep_ID = item_key
+for guard_events in guard_times:
+    for index, minute in enumerate(guard_events["schedules"]):
+        if minute > guard_events["highest_score"]:
+            guard_events["highest_score"] = minute
+            guard_events["most_sleep_min"] = index
+    print(guard_events["highest_score"], guard_events["most_sleep_min"] * int(guard_events["ID"]))
 
-print(longest_sleep_ID)
-
-longest_sleeper = []
-
-for event in complete_events:
-    if longest_sleep_ID == event["ID"]:
-        longest_sleeper.append(event.copy())
 
 minutes_sleeping = [0] * 60
 highest_min = 0
@@ -132,5 +134,3 @@ for index, min_asleep in enumerate(minutes_sleeping):
     if min_asleep > highest_min:
         highest_min = min_asleep
         index_highest = index
-
-print(index_highest * int(longest_sleep_ID))
