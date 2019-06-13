@@ -48,9 +48,26 @@ for x in range(max_coords["x_min"], max_coords["x_max"]):
         grid[x].append(Cell(x, y))
 
 
-print(grid[4][4])
+print(grid[4][4].valid)
 
 def calcDistance(point1, point2):
-    x = abs(point1[0] - point2[0])
-    y = abs(point1[1] - point2[1])
+    x = abs(point1["x"] - point2[0])
+    y = abs(point1["y"] - point2[1])
     return x + y
+
+for location in locations:
+    for row in grid:
+        for cell in row:
+            if cell.valid:
+                cell.addDistance(location)
+
+print(grid[4][4].valid)
+
+counter = 0
+
+for row in grid:
+    for cell in row:
+        if cell.valid:
+            counter += 1
+
+print(counter)
