@@ -123,6 +123,5 @@ loadData('input.txt')
     .then(rootFolder => {
     const availableSpace = 70000000 - rootFolder.contentSize;
     const neededSpace = 30000000 - availableSpace;
-    console.log(neededSpace);
-    console.log(findSmallestFolderOver(rootFolder, neededSpace));
+    console.log(`Smalles Folder larger than needed Space has size ${findSmallestFolderOver(rootFolder, neededSpace)}`);
 });
