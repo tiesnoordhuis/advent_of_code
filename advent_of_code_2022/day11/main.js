@@ -6,6 +6,7 @@ class Item {
     }
 }
 class Monkey {
+    static superModulo = 1;
     pocket = [];
     operation;
     test;
@@ -29,7 +30,12 @@ class Monkey {
         this.inspectCounter += 1;
     }
     postInspectionRelief(item) {
-        item.worryLevel = Math.floor(item.worryLevel / 3);
+        if (process.argv[2] === 'part2') {
+            item.worryLevel = (item.worryLevel % Monkey.superModulo);
+        }
+        else {
+            item.worryLevel = Math.floor(item.worryLevel / 3);
+        }
     }
     throwItem(item) {
         if (this.test(item.worryLevel)) {
@@ -64,7 +70,9 @@ loadData('input.txt')
             operationCache = new Function('old', `return ${line.split('Operation: new = ')[1]}`);
         }
         else if (line.startsWith('Test')) {
-            testCache = new Function('worry', `return worry % ${Number(line.split('divisible by ')[1])} === 0`);
+            const modulo = Number(line.split('divisible by ')[1]);
+            Monkey.superModulo *= modulo;
+            testCache = new Function('worry', `return worry % ${modulo} === 0`);
         }
         else if (line.startsWith('If true')) {
             trueTargetCache = Number(line.split('throw to monkey ')[1]);
@@ -73,27 +81,31 @@ loadData('input.txt')
             falseTargetCache = Number(line.split('throw to monkey ')[1]);
             Object.defineProperty(monkeys, `${monkeyNumberCache}`, {
                 value: new Monkey(startingItemsCache, operationCache, testCache, trueTargetCache, falseTargetCache),
-                writable: true,
+                writable: false,
                 enumerable: true,
-                configurable: true
+                configurable: false
             });
         }
     }
     return monkeys;
 })
     .then((pack) => {
-    for (let round = 0; round < 20; round++) {
-        for (const monkey of Object.values(pack)) {
+    const monkeys = Object.values(pack);
+    const amountOfRounds = Number(process.argv[3]);
+    for (let round = 0; round < amountOfRounds; round++) {
+        for (let monkeyNumber = 0; monkeyNumber < monkeys.length; monkeyNumber++) {
+            const monkey = monkeys[monkeyNumber];
             while (monkey.pocket.length >= 1) {
                 const [toMonkeyNumber, itemToGive] = monkey.takeTurn();
-                pack[`${toMonkeyNumber}`].addItem(itemToGive);
+                monkeys[toMonkeyNumber].addItem(itemToGive);
             }
         }
     }
     const counters = [];
-    for (const [monkeyNumber, monkey] of Object.entries(pack)) {
+    monkeys.forEach((monkey, monkeyNumber) => {
         counters.push(monkey.inspectCounter);
-    }
+        console.log(monkeyNumber, monkey.inspectCounter);
+    });
     counters.sort((a, b) => b - a);
-    console.log(`monkey business after 20 rounds: ${counters[0] * counters[1]}`);
+    console.log(`monkey business after ${amountOfRounds} rounds: ${counters[0] * counters[1]}`);
 });

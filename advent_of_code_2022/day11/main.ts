@@ -9,6 +9,7 @@ class Item {
 }
 
 class Monkey {
+    static superModulo: number = 1;
     public pocket: Item[] = [];
 
     public operation: (old: number) => number;
@@ -44,7 +45,11 @@ class Monkey {
     }
 
     postInspectionRelief(item: Item) {
-        item.worryLevel = Math.floor(item.worryLevel / 3);
+        if (process.argv[2] === 'part2') {
+            item.worryLevel = (item.worryLevel % Monkey.superModulo);
+        } else {
+            item.worryLevel = Math.floor(item.worryLevel / 3);
+        }
     }
 
     throwItem(item: Item): [number, Item] {
@@ -83,9 +88,11 @@ loadData('input.txt')
                     `return ${line.split('Operation: new = ')[1]}`
                 ) as (old: number) => number
             } else if (line.startsWith('Test')) {
+                const modulo = Number(line.split('divisible by ')[1])
+                Monkey.superModulo *= modulo;
                 testCache = new Function(
                     'worry',
-                    `return worry % ${Number(line.split('divisible by ')[1])} === 0`    
+                    `return worry % ${modulo} === 0`    
                 ) as (worry: number) => boolean
             } else if (line.startsWith('If true')) {
                 trueTargetCache = Number(line.split('throw to monkey ')[1])
@@ -99,9 +106,9 @@ loadData('input.txt')
                             trueTargetCache,
                             falseTargetCache
                         ),
-                        writable: true,
+                        writable: false,
                         enumerable: true,
-                        configurable: true
+                        configurable: false
                     }
                 )
             }
@@ -109,21 +116,24 @@ loadData('input.txt')
         return monkeys
     })
     .then((pack: any) => {
-        for (let round = 0; round < 20; round++) {
-            for (const monkey of Object.values(pack) as Monkey[]) {
-                
+        const monkeys = Object.values(pack) as Monkey[];
+        const amountOfRounds = Number(process.argv[3])
+        for (let round = 0; round < amountOfRounds; round++) {
+            for (let monkeyNumber = 0; monkeyNumber < monkeys.length; monkeyNumber++) {
+                const monkey = monkeys[monkeyNumber];
                 while (monkey.pocket.length >= 1){
                     const [toMonkeyNumber, itemToGive] = monkey.takeTurn()
-                    pack[`${toMonkeyNumber}`].addItem(itemToGive);
+                    monkeys[toMonkeyNumber].addItem(itemToGive);
                 }
             }
         }
 
         const counters: number[] = []
-        for (const [monkeyNumber, monkey] of Object.entries(pack) as [string, Monkey][]) {
+        monkeys.forEach((monkey, monkeyNumber) => {
             counters.push(monkey.inspectCounter)
-        }
+            console.log(monkeyNumber, monkey.inspectCounter);
+        })
         counters.sort((a, b) => b - a)
-        console.log(`monkey business after 20 rounds: ${counters[0] * counters[1]}`);
+        console.log(`monkey business after ${amountOfRounds} rounds: ${counters[0] * counters[1]}`);
         
     })
