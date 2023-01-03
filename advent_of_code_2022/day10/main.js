@@ -38,9 +38,9 @@ class Drawing {
         cycleCounter -= 1;
         const rowIndex = Math.floor(cycleCounter / 40);
         const columnIndex = cycleCounter % 40;
-        // if (rowIndex >= this.store.length) {
-        //     this.store.push([])
-        // }
+        if (rowIndex >= this.store.length) {
+            this.store.push([]);
+        }
         this.store[rowIndex].push(this.sprite(register, columnIndex));
     }
     sprite(register, columnIndex) {
