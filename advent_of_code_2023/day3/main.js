@@ -1,13 +1,13 @@
 import loadData from '../advent.js';
 
-const isSymbol = symbol => symbol !== '.' && isNaN(Number(symbol));
+const isSymbol = symbol => symbol === '*';
 
 loadData('input.txt').then(data => {
-    const symbols = [];
+    const gears = [];
     for (const [row, line] of data.entries()) {
         for (const [col, symbol] of line.split('').entries()) {
             if (isSymbol(symbol)) {
-                symbols.push({
+                gears.push({
                     symbol,
                     row,
                     col,
@@ -38,10 +38,8 @@ loadData('input.txt').then(data => {
             });
         }
     }
-    
-    const numbersNextToSymbols = [];
-    
-    numbers.forEach(number => {
+
+    const numbersWithPossiblePositons = numbers.map(number => {
         const posiblePositions = []
         for (let col = Math.max(0, number.col - 1); col <= number.col + number.number.toString().length; col++) {
             posiblePositions.push({
@@ -61,17 +59,29 @@ loadData('input.txt').then(data => {
             row: number.row,
             col: number.col + number.number.toString().length,
         });
-        for (const position of posiblePositions) {
-            if (data[position.row]
-                && data[position.row][position.col]
-                && isSymbol(data[position.row][position.col])) {
-                numbersNextToSymbols.push(number);
-                break;
-            }
+        return {
+            ...number,
+            posiblePositions,
+        };
+    });
+    
+    const gearsWithTwoNumbers = [];
+    gears.forEach((gear) => {
+        const numbersInGear = numbersWithPossiblePositons.filter(
+            number => number.posiblePositions.some(
+                pos => pos.row === gear.row && pos.col === gear.col
+            )
+        );
+        if (numbersInGear.length === 2) {
+            gearsWithTwoNumbers.push({
+                ...gear,
+                numbers: numbersInGear,
+            });
         }
     });
 
-    console.log(numbersNextToSymbols);
-    console.log(numbersNextToSymbols.reduce((acc, number) => acc + number.number, 0));
+    
+    console.log(gearsWithTwoNumbers);
+    console.log(gearsWithTwoNumbers.reduce((acc, gear) => acc + gear.numbers[0].number * gear.numbers[1].number, 0));
 
 });
