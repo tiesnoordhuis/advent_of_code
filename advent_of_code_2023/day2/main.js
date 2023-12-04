@@ -11,7 +11,6 @@ const parseGrabs = grabs => {
         };
         for (const hand of grab.split(', ')) {
             const [count, color] = hand.split(' ');
-            console.log(count, color);
             parsedGrab[color] += parseInt(count);
         }
         parsedGrabs.push(parsedGrab);
@@ -19,37 +18,32 @@ const parseGrabs = grabs => {
     return parsedGrabs;
 };
 
-const isPossible = grabs => {
-    const maxGrabs = {
-        'red': 12,
-        'green': 13,
-        'blue': 14,
+const powerOfGrabs = grabs => {
+    const minGrabs = {
+        'red': 0,
+        'green': 0,
+        'blue': 0,
     };
     for (const grab of grabs) {
-        for (const color in maxGrabs) {
-            if (!isNaN(grab[color]) && grab[color] > maxGrabs[color]) {
-                return false;
-            } else {
-                // niks
-                let niks = 0;
+        for (const color in minGrabs) {
+            if (grab[color] > minGrabs[color]) {
+                minGrabs[color] = grab[color];
             }
 
         }
     }
-    return true;
+    return minGrabs.red * minGrabs.green * minGrabs.blue;
 };
     
 
 loadData('input.txt').then(data => {
-    const ids = [];
+    const powers = [];
     for (const line of data) {
         let [id, grabs] = line.split(': ', 2);
         id = parseInt(id.split('Game ')[1]);
         grabs = parseGrabs(grabs);
-        if (isPossible(grabs)) {
-            ids.push(id);
-        }
+        powers.push(powerOfGrabs(grabs));
     }
-    console.log(ids);
-    console.log(ids.reduce((a, b) => a + b, 0));
+    console.log(powers);
+    console.log(powers.reduce((a, b) => a + b, 0));
 });
