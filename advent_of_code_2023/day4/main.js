@@ -2,27 +2,40 @@ import loadData from '../advent.js';
 
 class Card {
     constructor(line) {
+        this.constructorString = line;
         const [name, rest] = line.split(': ', 2);
-        this.name = name.substring(5)
+        this.name = parseInt(name.substring(5));
         const [winningRaw, pickedRaw] = rest.split(' | ', 2);
         this.winning = winningRaw.split(' ').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
         this.picked = pickedRaw.split(' ').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
     }
 
     get points() {
-        let wins = 0;
-        for (const pick of this.picked) {
-            if (this.winning.includes(pick)) {
-                wins++;
-            }
-        }
-        return wins === 0 ? 0 : Math.pow(2, wins - 1);
+        return this.picked.reduce((acc, curr) => {
+            const point = this.winning.includes(curr) ? 1 : 0;
+            return acc + point;
+        }, 0)
+    }
+
+    get number() {
+        return this.name;
     }
 }
 
 loadData('input.txt').then(data => {
     const cards = data.map(line => new Card(line));
-    const points = cards.map(card => card.points);
-    const total = points.reduce((a, b) => a + b, 0);
-    console.log(total);
+    let counter = 0;
+    while (cards.length >= 1) {
+        const card = cards.shift();
+        for (let index = 1; index <= card.points; index++) {
+            const cardToClone = cards.find(x => x.number === card.number + index)
+            if (cardToClone === undefined) {
+                continue;
+            }
+            cards.unshift(new Card(cardToClone.constructorString));
+        }
+        // cards.sort((a, b) => a.number - b.number)
+        counter++;
+    }
+    console.log(counter);
 });
