@@ -24,13 +24,13 @@ class Mapper {
 
 loadData('input.txt')
     .then(data => {
-        const seeds = [];
         const mapperConstructorOptions = [];
         
         let rowNumber = 0;
         // read seeds from first row
+        const seeds = [];
         seeds.push(...data[rowNumber].substring(7).split(' ').map(it => Number(it)));
-        console.log(seeds);
+
         rowNumber++;
         let mapperOptions;
         for (; rowNumber < data.length; rowNumber++) {
@@ -51,9 +51,21 @@ loadData('input.txt')
         }
         mapperConstructorOptions.push(mapperOptions);
         const mappers = mapperConstructorOptions.map(options => new Mapper(options));
+
+        let location = 10000000000;
+        for (let index = 0; index < seeds.length; index += 2) {
+            const startSeed = seeds[index];
+            const range = seeds[index + 1];
+            
+            for (let seed = startSeed; seed < startSeed + range; seed++) {
+                let newLocation = findLocationOfSeed(seed, mappers);
+                if (newLocation < location) {
+                    location = newLocation;
+                }
+            }
+        }
         
-        const locations = seeds.map(seed => findLocationOfSeed(seed, mappers))
-        console.log(locations.sort((a, b) => a - b));
+        console.log(location);
     })
 
 function findLocationOfSeed(seed, mappers) {
