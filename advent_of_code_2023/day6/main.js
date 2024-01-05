@@ -21,8 +21,8 @@ class Race {
 
 loadData('input.txt')
     .then(data => {
-        const times = data[0].split(':')[1].trim().split(' ').filter(it => it).map(Number)
-        const distances = data[1].split(':')[1].trim().split(' ').filter(it => it).map(Number)
+        const times = [Number(data[0].split(':')[1].trim().split(' ').filter(it => it).join(''))]
+        const distances = [Number(data[1].split(':')[1].trim().split(' ').filter(it => it).join(''))]
         const races = [];
         for (let index = 0; index < times.length; index++) {
             races.push(new Race(times[index], distances[index]))
