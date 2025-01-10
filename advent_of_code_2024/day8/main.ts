@@ -106,7 +106,7 @@ for (const antennaGroup of antennas) {
 
 console.log(map.map(row => row.map(char => char ? char : '.').join(' ')));
 
-console.log(antinodes.reverse().map(row => row.join(' ')));
+console.log(antinodes.map(row => row.join(' ')));
 
 console.log(antinodes.flat().reduce((prev: number, curr: number) => prev + (curr > 0 ? 1 : 0), 0));
 
